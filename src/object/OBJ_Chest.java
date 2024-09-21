@@ -1,18 +1,15 @@
 package object;
 
-import java.io.IOException;
+import entity.Entity;
+import main.GamePanel;
 
-import javax.imageio.ImageIO;
+public class OBJ_Chest extends Entity {
 
-public class OBJ_Chest extends SuperObject {
-
-	public OBJ_Chest() {
+	GamePanel gp;
+	public OBJ_Chest(GamePanel gp) {
+		super(gp);
+		
 		name = "Chest";
-		try {
-			image = ImageIO.read(getClass().getResourceAsStream("/objects/chest.png"));
-					
-		} catch (IOException e) {
-			
-		}
+		down1 = setup("/objects/chest");
 	}
 }
