@@ -8,6 +8,7 @@ public class KeyHandler implements KeyListener{
 	GamePanel gp;
 	public boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed;
 	
+	boolean showDebugText = false;
 	public KeyHandler(GamePanel gp) {
 		this.gp = gp;
 	}
@@ -21,10 +22,28 @@ public class KeyHandler implements KeyListener{
 	public void keyPressed(KeyEvent e) {
 		
 		int code = e.getKeyCode();
-	
-	//Title State
+//Title State
 		if(gp.gameState == gp.titleState) {
-			
+			titleState(code);
+		}
+//Play State
+		else if(gp.gameState == gp.playState) {
+			playState(code);
+		}
+//pause State
+		else if(gp.gameState == gp.pauseState) {
+			pauseState(code);
+		}
+//dialogue state
+		else if(gp.gameState == gp.dialogueState) {
+			dialogueState(code);
+		}
+//character State
+		else if (gp.gameState == gp.characterState) {
+			characterState(code);
+		}
+	}
+	public void titleState(int code) {	
 			if(code == KeyEvent.VK_W) {
 				gp.ui.commandNum--;
 				if(gp.ui.commandNum < 0) {
@@ -45,7 +64,7 @@ public class KeyHandler implements KeyListener{
 				}
 				
 				if(gp.ui.commandNum == 1) {
-					 // add later
+					// add later
 				}
 				if(gp.ui.commandNum == 2) {
 					System.exit(0);
@@ -54,43 +73,83 @@ public class KeyHandler implements KeyListener{
 			}
 			
 		}
-		
-		
-	//Play State
-		if(gp.gameState == gp.playState) {
-				
-			if(code == KeyEvent.VK_W) {
-				upPressed = true;
-			}
-			if(code == KeyEvent.VK_S) {
-				downPressed = true;
-			}
-			if(code == KeyEvent.VK_A) {
-				leftPressed = true;
-			}	
-			if(code == KeyEvent.VK_D) {
-				rightPressed = true;
-			}
-			if(code == KeyEvent.VK_P) {
-				gp.gameState = gp.pauseState;
-			}
-			if(code == KeyEvent.VK_ENTER) {
-				enterPressed = true;
-			}
+	public void playState(int code) {
+		if(code == KeyEvent.VK_W) {
+			upPressed = true;
+		}
+		if(code == KeyEvent.VK_S) {
+			downPressed = true;
+		}
+		if(code == KeyEvent.VK_A) {
+			leftPressed = true;
+		}	
+		if(code == KeyEvent.VK_D) {
+			rightPressed = true;
+		}
+		if(code == KeyEvent.VK_P) {
+			gp.gameState = gp.pauseState;
+		}
+		if(code == KeyEvent.VK_C) {
+			gp.gameState = gp.characterState;
+		}
+		if(code == KeyEvent.VK_ENTER) {
+			enterPressed = true;
+		}
+		if(code == KeyEvent.VK_R) {
+			gp.tileM.loadMap("/maps/WorldV3.txt");
 		}
 		
-		//pause State
-		else if(gp.gameState == gp.pauseState) {
-			if(code == KeyEvent.VK_P) {
-				gp.gameState = gp.playState;
+		//DEBUG
+		if(code == KeyEvent.VK_T) {
+			if(showDebugText == false) {
+				showDebugText = true;
+			}
+			else if (showDebugText == true) {
+				showDebugText = false;
 			}
 		}
-		
-		//dialogue state
-		else if(gp.gameState == gp.dialogueState) {
-			if(code == KeyEvent.VK_ENTER) {
-				gp.gameState = gp.playState;
+	}
+	
+	public void pauseState(int code) {
+		if(code == KeyEvent.VK_P) {
+			gp.gameState = gp.playState;
+		}
+	}
+	public void dialogueState(int code) {
+		if(code == KeyEvent.VK_ENTER) {
+			gp.gameState = gp.playState;
+		}
+	}
+	public void characterState(int code) {
+		if(code == KeyEvent.VK_C) {
+			gp.gameState = gp.playState;
+		}
+		if(code == KeyEvent.VK_W) {
+			if(gp.ui.slotRow != 0) {				
+				gp.ui.slotRow --;
+				gp.playSE(9);
 			}
+		}
+		if(code == KeyEvent.VK_A) {
+			if(gp.ui.slotCol != 0) {				
+				gp.ui.slotCol--;
+				gp.playSE(9);
+			}
+		}
+		if(code == KeyEvent.VK_S) {
+			if(gp.ui.slotRow !=3) {				
+				gp.ui.slotRow++;
+				gp.playSE(9);
+			}
+		}
+		if(code == KeyEvent.VK_D) {
+			if(gp.ui.slotCol != 4) {				
+				gp.ui.slotCol++;
+				gp.playSE(9);
+			}
+		}
+		if(code == KeyEvent.VK_ENTER) {
+			gp.player.selectItem();
 		}
 	}
 

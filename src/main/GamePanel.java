@@ -2,6 +2,7 @@ package main;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
@@ -53,9 +54,9 @@ public class GamePanel extends JPanel implements Runnable{
 	public final int playState = 1;
 	public final int pauseState = 2;
 	public final int dialogueState= 3;
+	public final int characterState = 4;
 	
 	public GamePanel () {
-		
 		this.setPreferredSize(new Dimension(screenWidth, screenHeight));
 		this.setBackground(Color.black);
 		this.setDoubleBuffered(true);
@@ -63,14 +64,10 @@ public class GamePanel extends JPanel implements Runnable{
 		this.setFocusable(true);
 		this.requestFocusInWindow();
 	}
-
-	
-	public void setupGame() {
-		
+	public void setupGame() {	
 		aSetter.setObject();
 		aSetter.setNPC();
 		aSetter.setMonster();
-		
 		playMusic(0);
 		stopMusic();
 		gameState = titleState;
@@ -80,21 +77,16 @@ public class GamePanel extends JPanel implements Runnable{
 		gameThread = new Thread(this);
 		gameThread.start();	
 	}
-	
+
 	@Override
 	public void run() {
-		
 		double drawInterval = 1000000000/FPS;
 		double nextDrawTime = System.nanoTime() + drawInterval;
-		
-		while (gameThread != null) {
-						
+		while (gameThread != null) {			
 			//update info such as character positions
 			update();
-			
 			repaint();
 			// draw the screen with the updated info
-			
 			try {
 				double remainingTime = nextDrawTime - System.nanoTime();
 				remainingTime = remainingTime/1000000;
@@ -102,20 +94,15 @@ public class GamePanel extends JPanel implements Runnable{
 				if (remainingTime < 0) {
 					remainingTime = 0;
 				}
-				
 				Thread.sleep((long)remainingTime);
-				
 				nextDrawTime += drawInterval;
-				
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 		
 	}
-	
 	public void update () {
-		
 		if(gameState == playState) {			
 			player.update();
 			
@@ -126,11 +113,15 @@ public class GamePanel extends JPanel implements Runnable{
 			}
 			for(int i = 0; i< monster.length; i++) {
 				if(monster[i] != null) {
-					monster[i].update();
+					if(monster[i].alive == true && monster[i].dying == false) {
+						monster[i].update();
+					}
+					if(monster[i].alive == false) {						
+						monster[i] = null;
+					}
 				}
 			}
 		}
-		
 		if (gameState == pauseState) {
 			//nothing
 		}
@@ -138,40 +129,36 @@ public class GamePanel extends JPanel implements Runnable{
 	
 	public void paintComponent (Graphics g) {
 		super.paintComponent(g);
-		
 		Graphics2D g2 = (Graphics2D)g;
-		
+		//DEBUG
+		long drawStart = 0;
+		if(keyH.showDebugText == true) {
+			drawStart = System.nanoTime();
+		}
 		//title screen
 		if(gameState == titleState) {
-			
 			ui.draw(g2);
 		}
 		else {		
-			
 			//tile
 			tileM.draw(g2);
-			
 			//ADD ENTITTIES TO THE LIST
 			entityList.add(player);
-			
 			for(int i = 0; i< npc.length; i++) {
 				if(npc[i] != null ) {
 					entityList.add(npc[i]);
 				}
 			}
-			
 			for(int i = 0; i < obj.length; i++) {
 				if(obj[i] != null) {
 					entityList.add(obj[i]);
 				}
 			}
-			
 			for(int i = 0; i < monster.length; i++) {
 				if(monster[i] != null) {
 					entityList.add(monster[i]);
 				}
 			}
-			
 			//SORT
 			Collections.sort(entityList, new Comparator<Entity>() {
 
@@ -182,22 +169,33 @@ public class GamePanel extends JPanel implements Runnable{
 					return 0;
 				}
 			});
-			
 			//DRAW ENTITIES
 			for (int i = 0; i< entityList.size(); i++) {
 				entityList.get(i).draw(g2);
 			}
 			//EMPTY ENTITY LIST
-			for (int i = 0; i< entityList.size(); i++) {
-				entityList.remove(i);
-			}
+			entityList.clear();
 			//UI
 			ui.draw(g2);
+			}
+		
+		if(keyH.showDebugText == true) {
+			long drawEnd = System.nanoTime();
+			long passed = drawEnd - drawStart;
 			
+			g2.setFont(new Font("Arial", Font.PLAIN,20)); 
+			g2.setColor(Color.white);
+			int x = 10;
+			int y = 400;
+			int lineHeight = 20;
+			g2.drawString("WorldX" + player.worldX,  x, y); y+= lineHeight;
+			g2.drawString("WorldY" + player.worldY,  x, y); y+= lineHeight;
+			g2.drawString("Col" + (player.worldX + player.solidArea.x)/tileSize,  x, y); y+= lineHeight;
+			g2.drawString("Row" + (player.worldY + player.solidArea.y)/tileSize,  x, y); y+= lineHeight;	
+			g2.drawString("Draw Time:" + passed,  x, y);	
+		}	
 			g2.dispose();
 		}
-	}
-	
 	public void playMusic(int i) {
 		music.setFile(i);
 		music.play();
@@ -206,18 +204,8 @@ public class GamePanel extends JPanel implements Runnable{
 	public void stopMusic() {
 		music.stop();
 	}
-	
 	public void playSE(int i) {
 		se.setFile(i);
 		se.play();
 	}
 }
-
-
-
-
-
-
-
-
-
