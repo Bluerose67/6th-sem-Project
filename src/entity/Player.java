@@ -52,8 +52,8 @@ public class Player extends Entity{
 	}
 	
 	public void setDefaultValues() {
-		worldX= gp.tileSize * 23;
-		worldY= gp.tileSize * 21;
+		worldX= gp.tileSize * 24;
+		worldY= gp.tileSize * 22;
 		speed = 4;
 		direction = "down";
 		
@@ -71,9 +71,19 @@ public class Player extends Entity{
 		attack = getAttack();
 		defense = getDefense();
 	}
-	
+	public void setDefaultPosition() {
+		worldX= gp.tileSize * 24;
+		worldY= gp.tileSize * 22;
+		direction = "down";
+
+	}
+	public void restoreLife() {
+		life = maxLife;
+		invincible = false;
+	}
 	public void setItems() {
 		
+		inventory.clear();
 		inventory.add(currentWeapon);
 		inventory.add(currentShield);
 		inventory.add(new OBJ_Key(gp));
@@ -160,6 +170,9 @@ public class Player extends Entity{
 			int monsterIndex = gp.cChecker.checkEntity(this, gp.monster);
 			contactMonster(monsterIndex);
 			
+			//CHECK INTERACTIVE TILE COLLISION
+			int iTileIndex = gp.cChecker.checkEntity(this, gp.iTile);
+			
 			//CHECK EVENT
 			gp.eHandler.checkEvent();
 			
@@ -213,6 +226,15 @@ public class Player extends Entity{
 				invincibleCounter = 0;
 			}
 		}	
+		if(life > maxLife) {
+			life = maxLife;
+		}
+		if(life <= 0) {
+			gp.gameState = gp.gameOverState;
+			gp.ui.commandNum = -1;
+			gp.stopMusic();
+			gp.playSE(11);
+		}
 	}
 	public void attacking() {
 	    spriteCounter++;
@@ -230,18 +252,10 @@ public class Player extends Entity{
 	        
 	        // Adjust player's worldX/Y for the attack area
 	        switch (direction) {
-	            case "up": 
-	                worldY -= attackArea.height; 
-	                break;
-	            case "down": 
-	                worldY += attackArea.height; 
-	                break;
-	            case "left": 
-	                worldX -= attackArea.width; 
-	                break;
-	            case "right": 
-	                worldX += attackArea.width; 
-	                break;
+	            case "up": worldY -= attackArea.height;  break;
+	            case "down":  worldY += attackArea.height; break;
+	            case "left":  worldX -= attackArea.width;  break;
+	            case "right": worldX += attackArea.width; break;
 	        }
 
 	        // Set attack area dimensions
@@ -251,7 +265,9 @@ public class Player extends Entity{
 	        // Check for monster collision
 	        int monsterIndex = gp.cChecker.checkEntity(this, gp.monster);
 	        damageMonster(monsterIndex);
-
+	        
+	        int iTileIndex = gp.cChecker.checkEntity(this,  gp.iTile);
+	        damageInteractiveTile(iTileIndex);
 	        // Restore original position and solid area
 	        worldX = currentWorldX;
 	        worldY = currentWorldY;
@@ -267,17 +283,27 @@ public class Player extends Entity{
 	public void pickUpObject(int i) {
 		
 		if (i != 999) {
-			String text;
-			if(inventory.size() != maxInventorySize) {
+			
+			//Pickup Only Items
+			if(gp.obj[i].type == type_pickupOnly) {
 				
-				inventory.add(gp.obj[i]);
-				gp.playSE(1);
-				text = "Got a " + gp.obj[i].name + "!";
-			} else {
-				text = "You cannot carry any more!";
+				gp.obj[i].use(this);
+				gp.obj[i] = null;
 			}
-			gp.ui.addMessage(text);
-			gp.obj[i] = null;
+			//Inventory Items
+			else {				
+				String text;
+				if(inventory.size() != maxInventorySize) {
+					
+					inventory.add(gp.obj[i]);
+					gp.playSE(1);
+					text = "Got a " + gp.obj[i].name + "!";
+				} else {
+					text = "You cannot carry any more!";
+				}
+				gp.ui.addMessage(text);
+				gp.obj[i] = null;
+			}
 		}
 	}
 	
@@ -332,6 +358,24 @@ public class Player extends Entity{
 					exp += gp.monster[i].exp;
 					checkLevelUp();
 				}
+			}
+		}
+	}
+	public void damageInteractiveTile(int i ) {
+		
+		if(i != 999 && gp.iTile[i].destructible == true 
+				&& gp.iTile[i].isCorrectItem(this) == true 
+				&& gp.iTile[i].invincible == false) {
+			
+			gp.iTile[i].playSE();
+			gp.iTile[i].life--;
+			gp.iTile[i].invincible = true;
+			
+			//Generate Particle
+			generateParticle(gp.iTile[i], gp.iTile[i]);
+			
+			if(gp.iTile[i].life == 0) {				
+				gp.iTile[i] = gp.iTile[i].getDestroyedForm();
 			}
 		}
 	}

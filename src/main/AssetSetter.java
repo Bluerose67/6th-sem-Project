@@ -3,9 +3,11 @@ package main;
 import entity.NPC_OldMan;
 import monster.MON_GreenSlime;
 import object.OBJ_Axe;
+import object.OBJ_Coin_Bronze;
 import object.OBJ_Key;
 import object.OBJ_Potion_Red;
 import object.OBJ_Shield_Blue;
+import tile_Interactive.IT_DryTree;
 
 public class AssetSetter {
 
@@ -19,10 +21,11 @@ public class AssetSetter {
 	public void setObject() {
 		int i = 0;
 
-//		gp.obj[0] = new OBJ_Door(gp);
-//		gp.obj[0].worldX = gp.tileSize*21;
-//		gp.obj[0].worldY = gp.tileSize*22;
-		gp.obj[i] = new OBJ_Key(gp);
+//		gp.obj[i] = new OBJ_Door(gp);
+//		gp.obj[i].worldX = gp.tileSize*24;
+//		gp.obj[i].worldY = gp.tileSize*16;
+//		i++;
+		gp.obj[i] = new OBJ_Coin_Bronze(gp);
 		gp.obj[i].worldX = gp.tileSize*25;
 		gp.obj[i].worldY = gp.tileSize*23;
 		i++;
@@ -35,8 +38,8 @@ public class AssetSetter {
 		gp.obj[i].worldY = gp.tileSize*21;
 		i++;
 		gp.obj[i] = new OBJ_Axe(gp);
-		gp.obj[i].worldX = gp.tileSize*33;
-		gp.obj[i].worldY = gp.tileSize*21;
+		gp.obj[i].worldX = gp.tileSize*30;
+		gp.obj[i].worldY = gp.tileSize*15;
 		i++;
 		gp.obj[i] = new OBJ_Shield_Blue(gp);
 		gp.obj[i].worldX = gp.tileSize*35;
@@ -79,4 +82,40 @@ public void setMonster() {
 		i++;
 		
 		}
+
+		public void setInteractiveTile () {
+			int i = 0;
+			gp.iTile[i] = new IT_DryTree(gp, 27, 12);
+			i++;
+			gp.iTile[i] = new IT_DryTree(gp, 28, 12);		
+			i++;
+			gp.iTile[i] = new IT_DryTree(gp, 29, 12);	
+			i++;
+			gp.iTile[i] = new IT_DryTree(gp, 30, 12);		
+			i++;
+			gp.iTile[i] = new IT_DryTree(gp, 31, 12);		
+			i++;
+			gp.iTile[i] = new IT_DryTree(gp, 32, 12);			
+			i++;
+			gp.iTile[i] = new IT_DryTree(gp, 33, 12);
+			i++;
+		}
+//		public void settree () {
+//			int i = 0;
+//			gp.iTile[i] = new tree(gp, 27, 14);
+//			i++;
+//			gp.iTile[i] = new tree(gp, 28, 14);		
+//			i++;
+//			gp.iTile[i] = new tree(gp, 29, 14);	
+//			i++;
+//			gp.iTile[i] = new tree(gp, 30, 14);		
+//			i++;
+//			gp.iTile[i] = new tree(gp, 31, 14);		
+//			i++;
+//			gp.iTile[i] = new tree(gp, 32, 14);			
+//			i++;
+//			gp.iTile[i] = new tree(gp, 33, 14);
+//			i++;
+//		}
+		
 }
